@@ -32,7 +32,7 @@ const redirectUrl = async (req, res) => {
       return res.status(404).json({ message: "URL not found" });
     }
 
-    const originalUrl = result[0].original_url || result[0].orginal_url;
+    const originalUrl = result[0].original_url;
 
     if (!originalUrl) {
       return res

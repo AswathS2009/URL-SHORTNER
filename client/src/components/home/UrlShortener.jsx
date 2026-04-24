@@ -1,11 +1,20 @@
-import React, { useState } from "react";
-import { Link2, QrCode, ExternalLink, Copy, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { Link2, QrCode, ExternalLink, Copy, ArrowRight, Lock } from "lucide-react";
 
-export default function UrlShortener({ onCopy }) {
+export default function UrlShortener({ onCopy, isAuthenticated, onRequireLogin }) {
   const [url, setUrl] = useState("");
   const [shortened, setShortened] = useState(null);
+  const [authNotice, setAuthNotice] = useState("");
 
   const handleShorten = async () => {
+    if (!isAuthenticated) {
+      setAuthNotice("Please log in or sign up to generate short URLs.");
+      onRequireLogin?.();
+      return;
+    }
+
+    setAuthNotice("");
+
     try {
       const response = await fetch("http://localhost:5000/shorten", {
         method: "POST",
@@ -14,8 +23,8 @@ export default function UrlShortener({ onCopy }) {
         },
         body: JSON.stringify({ original_url: url }),
       });
+
       const data = await response.json();
-      console.log(data);
       setShortened({
         short: data.short_url,
         original: url,
@@ -32,13 +41,11 @@ export default function UrlShortener({ onCopy }) {
 
   return (
     <section className="flex flex-col items-center text-center px-4 pt-14 pb-20 max-w-2xl mx-auto w-full">
-      {/* Banner */}
       <div className="flex items-center gap-2 bg-slate-800/70 border border-slate-700 text-cyan-400 text-xs font-medium px-4 py-1.5 rounded-full mb-10">
         <Link2 size={12} />
         <span>New: Custom branded domains are now available</span>
       </div>
 
-      {/* Headline */}
       <h1 className="text-5xl font-extrabold text-white leading-tight mb-4">
         Shorten URLs.
         <br />
@@ -49,13 +56,22 @@ export default function UrlShortener({ onCopy }) {
         click and optimize your links in real-time.
       </p>
 
-      {/* Input */}
-      <div className="w-full flex items-center bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 gap-3 mb-4">
+      {!isAuthenticated && (
+        <div className="w-full mb-3 flex items-center justify-center gap-2 rounded-lg border border-cyan-900/50 bg-cyan-950/20 text-cyan-300 text-xs px-3 py-2">
+          <Lock size={13} />
+          <span>Login required to create short links</span>
+        </div>
+      )}
+
+      <div className="w-full flex items-center bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 gap-3 mb-2">
         <Link2 size={18} className="text-slate-500 shrink-0" />
         <input
           type="text"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={(e) => {
+            setUrl(e.target.value);
+            if (authNotice) setAuthNotice("");
+          }}
           onKeyDown={(e) => e.key === "Enter" && handleShorten()}
           placeholder="Paste your long URL here..."
           className="flex-1 bg-transparent text-slate-300 text-sm outline-none placeholder-slate-600"
@@ -68,7 +84,8 @@ export default function UrlShortener({ onCopy }) {
         </button>
       </div>
 
-      {/* Result Card */}
+      {authNotice && <p className="w-full text-left text-xs text-cyan-300 mb-4">{authNotice}</p>}
+
       {shortened && (
         <div className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
           <div className="text-left min-w-0">
