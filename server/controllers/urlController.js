@@ -4,14 +4,14 @@ const urlModel = require("../models/urlModel");
 const createShortUrl = async (req, res) => {
   try {
     const { original_url } = req.body;
-    console.log(original_url);
     if (!original_url) {
       return res.status(400).json({ message: "URL is required" });
     }
 
     const shortCode = generateCode();
+    const userId = req.user.id;
 
-    await urlModel.createShortUrl(original_url, shortCode);
+    await urlModel.createShortUrl(original_url, shortCode, userId);
 
     res.json({
       short_url: `http://localhost:5000/${shortCode}`,

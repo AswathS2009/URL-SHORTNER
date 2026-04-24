@@ -1,7 +1,19 @@
 import { useState } from "react";
-import { Link2, QrCode, ExternalLink, Copy, ArrowRight, Lock } from "lucide-react";
+import {
+  Link2,
+  QrCode,
+  ExternalLink,
+  Copy,
+  ArrowRight,
+  Lock,
+} from "lucide-react";
 
-export default function UrlShortener({ onCopy, isAuthenticated, onRequireLogin }) {
+export default function UrlShortener({
+  onCopy,
+  isAuthenticated,
+  token,
+  onRequireLogin,
+}) {
   const [url, setUrl] = useState("");
   const [shortened, setShortened] = useState(null);
   const [authNotice, setAuthNotice] = useState("");
@@ -20,16 +32,23 @@ export default function UrlShortener({ onCopy, isAuthenticated, onRequireLogin }
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ original_url: url }),
       });
 
       const data = await response.json();
+      if (!response.ok) {
+        setAuthNotice(data.message || "Unable to shorten URL");
+        return;
+      }
+
       setShortened({
         short: data.short_url,
         original: url,
       });
     } catch (error) {
+      setAuthNotice("Unable to connect to server");
       console.log("Error: ", error);
     }
   };
@@ -52,8 +71,8 @@ export default function UrlShortener({ onCopy, isAuthenticated, onRequireLogin }
         Expand your reach.
       </h1>
       <p className="text-slate-400 text-base max-w-md mb-10 leading-relaxed">
-        A modern, fast, and secure URL shortener for forward-thinking teams and creators. Track every
-        click and optimize your links in real-time.
+        A modern, fast, and secure URL shortener for forward-thinking teams and
+        creators. Track every click and optimize your links in real-time.
       </p>
 
       {!isAuthenticated && (
@@ -84,13 +103,21 @@ export default function UrlShortener({ onCopy, isAuthenticated, onRequireLogin }
         </button>
       </div>
 
-      {authNotice && <p className="w-full text-left text-xs text-cyan-300 mb-4">{authNotice}</p>}
+      {authNotice && (
+        <p className="w-full text-left text-xs text-cyan-300 mb-4">
+          {authNotice}
+        </p>
+      )}
 
       {shortened && (
         <div className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
           <div className="text-left min-w-0">
-            <p className="text-white text-sm font-semibold">{shortened.short}</p>
-            <p className="text-slate-500 text-xs mt-0.5 truncate">{shortened.original}</p>
+            <p className="text-white text-sm font-semibold">
+              {shortened.short}
+            </p>
+            <p className="text-slate-500 text-xs mt-0.5 truncate">
+              {shortened.original}
+            </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 transition-colors">

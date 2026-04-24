@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Link2, X } from "lucide-react";
 
-export default function SignupModel({ isOpen, onClose, onSwitchToLogin, onSuccess }) {
+export default function SignupModel({
+  isOpen,
+  onClose,
+  onSwitchToLogin,
+  onSuccess,
+}) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const nameRef = useRef(null);
 
   useEffect(() => {
@@ -12,6 +19,7 @@ export default function SignupModel({ isOpen, onClose, onSwitchToLogin, onSucces
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const t = setTimeout(() => nameRef.current?.focus(), 20);
+    setError("");
 
     const onKeyDown = (e) => {
       if (e.key === "Escape") onClose();
@@ -29,20 +37,51 @@ export default function SignupModel({ isOpen, onClose, onSwitchToLogin, onSucces
 
   const canSubmit = name.trim() && email.trim() && password.trim();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!canSubmit) return;
-    onSuccess({
-      name,
-      email,
-    });
-    setName("");
-    setEmail("");
-    setPassword("");
+    if (!canSubmit || isLoading) return;
+
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const response = await fetch("http://localhost:5000/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Signup failed");
+        return;
+      }
+
+      if (typeof onSuccess === "function") {
+        onSuccess({
+          user: {
+            ...data.user,
+            name: name.trim() || data.user?.email,
+          },
+          token: data.token,
+        });
+      }
+
+      setName("");
+      setEmail("");
+      setPassword("");
+    } catch {
+      setError("Unable to connect to server");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
@@ -88,7 +127,9 @@ export default function SignupModel({ isOpen, onClose, onSwitchToLogin, onSucces
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5">Password</label>
+            <label className="block text-xs text-slate-400 mb-1.5">
+              Password
+            </label>
             <input
               type="password"
               value={password}
@@ -100,11 +141,15 @@ export default function SignupModel({ isOpen, onClose, onSwitchToLogin, onSucces
 
           <button
             type="submit"
-            disabled={!canSubmit}
+            disabled={!canSubmit || isLoading}
             className="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold py-2.5 transition-colors"
           >
-            Sign up free
+            {isLoading ? "Creating account..." : "Sign up free"}
           </button>
+
+          {error ? (
+            <p className="text-xs text-red-400 text-center">{error}</p>
+          ) : null}
 
           <p className="text-xs text-slate-400 text-center">
             Already have an account?{" "}

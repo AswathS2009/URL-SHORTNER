@@ -9,6 +9,7 @@ export default function HomePage({
   activeModal,
   isAuthenticated,
   authUser,
+  authToken,
   onLoginClick,
   onSignupClick,
   onCloseModal,
@@ -24,8 +25,8 @@ export default function HomePage({
   return (
     <div className="min-h-screen bg-[#0d1117] relative overflow-x-hidden">
       {/* Background glow effects */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-700px h-400px bg-indigo-900/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-32 left-1/2 -translate-x-1/2 w-400px h-200px bg-cyan-900/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-175 h-100 bg-indigo-900/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-32 left-1/2 -translate-x-1/2 w-100 h-50 bg-cyan-900/10 rounded-full blur-2xl pointer-events-none" />
 
       {/* Toast */}
       <Toast show={showToast} onClose={() => setShowToast(false)} />
@@ -40,13 +41,13 @@ export default function HomePage({
       <SignupModel
         isOpen={activeModal === "signup"}
         onClose={onCloseModal}
-        onSwitchToSignup={onLoginClick}
+        onSwitchToLogin={onLoginClick}
         onSuccess={onAuthSuccess}
       />
 
       {/* Navbar */}
       <div className="relative z-10 max-w-6xl mx-auto">
-        <Navbar 
+        <Navbar
           isAuthenticated={isAuthenticated}
           authUser={authUser}
           onLoginClick={onLoginClick}
@@ -57,10 +58,11 @@ export default function HomePage({
 
       {/* Hero + URL Shortener */}
       <div className="relative z-10 max-w-6xl mx-auto">
-        <UrlShortener 
+        <UrlShortener
           onCopy={handleCopy}
           isAuthenticated={isAuthenticated}
-          onRequireLogin={onLoginClick} 
+          token={authToken}
+          onRequireLogin={onLoginClick}
         />
       </div>
 

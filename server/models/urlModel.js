@@ -1,8 +1,8 @@
 const db = require("../config/db");
 
-const createShortUrl = async (originalUrl, shortCode) => {
-  const sql = "INSERT INTO urls (original_url, short_code) values (?,?)";
-  const [result] = await db.execute(sql, [originalUrl, shortCode]);
+const createShortUrl = async (originalUrl, shortCode, userId) => {
+  const sql = "INSERT INTO urls (original_url, short_code, user_id) values (?,?,?)";
+  const [result] = await db.execute(sql, [originalUrl, shortCode, userId]);
   return result;
 };
 

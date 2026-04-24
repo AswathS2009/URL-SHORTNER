@@ -1,18 +1,24 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { Link2, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from "react";
+import { Link2, X } from "lucide-react";
+
 export default function LoginModel({
-    isOpen, onClose, onSwitchToSignup, onSuccess
+  isOpen,
+  onClose,
+  onSwitchToSignup,
+  onSuccess,
 }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const emailRef = useRef(null);
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const emailRef = useRef(null);
-
-    useEffect(() => {
+  useEffect(() => {
     if (!isOpen) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const t = setTimeout(() => emailRef.current?.focus(), 20);
+    setError("");
 
     const onKeyDown = (e) => {
       if (e.key === "Escape") onClose();
@@ -30,18 +36,44 @@ export default function LoginModel({
 
   const canSubmit = email.trim() && password.trim();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!canSubmit) return;
-    onSuccess({
-        name: email.split("@")[0] || "User",
-        email,
-    });
-    setEmail("");
-    setPassword("");
+    if (!canSubmit || isLoading) return;
+
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      if (typeof onSuccess === "function") {
+        onSuccess({ user: data.user, token: data.token });
+      }
+
+      setEmail("");
+      setPassword("");
+    } catch {
+      setError("Unable to connect to server");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
@@ -76,7 +108,9 @@ export default function LoginModel({
           </div>
 
           <div>
-            <label className="block text-xs text-slate-400 mb-1.5">Password</label>
+            <label className="block text-xs text-slate-400 mb-1.5">
+              Password
+            </label>
             <input
               type="password"
               value={password}
@@ -88,11 +122,15 @@ export default function LoginModel({
 
           <button
             type="submit"
-            disabled={!canSubmit}
+            disabled={!canSubmit || isLoading}
             className="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold py-2.5 transition-colors"
           >
-            Log in
+            {isLoading ? "Logging in..." : "Log in"}
           </button>
+
+          {error ? (
+            <p className="text-xs text-red-400 text-center">{error}</p>
+          ) : null}
 
           <p className="text-xs text-slate-400 text-center">
             No account yet?{" "}
@@ -107,5 +145,5 @@ export default function LoginModel({
         </form>
       </div>
     </div>
-  )
+  );
 }
