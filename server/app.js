@@ -7,7 +7,7 @@ const app = express();
 // CORS middleware - must come before routes
 app.use(
   cors({
-    origin: "*",
+    origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
