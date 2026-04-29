@@ -92,6 +92,7 @@ export default function RecentLinks({ onCopy, isAuthenticated, token }) {
 
         const mappedLinks = (data.links || []).map((item) => ({
           id: item.id,
+          shortCode: item.short_code,
           short: `${API_BASE_URL}/${item.short_code}`,
           original: item.original_url,
           clicks: Number(item.clicks || 0),
@@ -110,11 +111,16 @@ export default function RecentLinks({ onCopy, isAuthenticated, token }) {
     loadLinks();
   }, [isAuthenticated, token]);
 
-  const filtered = links.filter(
-    (l) =>
-      l.short.toLowerCase().includes(search.toLowerCase()) ||
-      l.original.toLowerCase().includes(search.toLowerCase()),
-  );
+  const searchTerm = search.trim().toLowerCase();
+  const filtered = links.filter((link) => {
+    if (!searchTerm) return true;
+
+    return (
+      link.short.toLowerCase().includes(searchTerm) ||
+      link.shortCode?.toLowerCase().includes(searchTerm) ||
+      link.original?.toLowerCase().includes(searchTerm)
+    );
+  });
 
   const handleDelete = async (id) => {
     if (!isAuthenticated || !token) return;
