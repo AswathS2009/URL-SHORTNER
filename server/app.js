@@ -23,5 +23,4 @@ const authRoutes = require("./routes/authRoutes");
 app.use("/", urlRoutes);
 app.use("/api/auth", authRoutes);
 
-
 module.exports = app;
