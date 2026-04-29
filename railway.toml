@@ -1,0 +1,17 @@
+root = true
+
+[build]
+  builder = "nixpacks"
+
+[build.env]
+  NODE_ENV = "production"
+
+[[services]]
+name = "backend"
+startCommand = "cd server && npm start"
+buildCommand = "cd server && npm install"
+
+[[services]]
+name = "frontend"
+startCommand = "cd client && npm run build && npm run preview"
+buildCommand = "cd client && npm install && npm run build"
