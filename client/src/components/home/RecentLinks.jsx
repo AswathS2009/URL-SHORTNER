@@ -48,12 +48,6 @@ function LinkRow({ link, onCopy, onDelete }) {
 
       {/* Actions */}
       <div className="flex items-center gap-2 ml-4">
-        <button className="p-1.5 text-slate-500 hover:text-slate-300 transition-colors">
-          <BarChart2 size={15} />
-        </button>
-        <button className="p-1.5 text-slate-500 hover:text-slate-300 transition-colors">
-          <Pencil size={15} />
-        </button>
         <button
           onClick={() => onDelete(link.id)}
           className="p-1.5 text-slate-500 hover:text-red-400 transition-colors"
