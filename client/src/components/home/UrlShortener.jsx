@@ -15,6 +15,8 @@ export default function UrlShortener({
   onRequireLogin,
 }) {
   const [url, setUrl] = useState("");
+  const [customCode, setCustomCode] = useState("");
+  const [useCustom, setUseCustom] = useState(false);
   const [shortened, setShortened] = useState(null);
   const [authNotice, setAuthNotice] = useState("");
 
@@ -28,13 +30,18 @@ export default function UrlShortener({
     setAuthNotice("");
 
     try {
+      const payload = { original_url: url };
+      if (useCustom && customCode.trim()) {
+        payload.custom_code = customCode.trim();
+      }
+
       const response = await fetch("http://localhost:5000/shorten", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ original_url: url }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -47,6 +54,8 @@ export default function UrlShortener({
         short: data.short_url,
         original: url,
       });
+      setCustomCode("");
+      setUseCustom(false);
     } catch (error) {
       setAuthNotice("Unable to connect to server");
       console.log("Error: ", error);
@@ -82,24 +91,48 @@ export default function UrlShortener({
         </div>
       )}
 
-      <div className="w-full flex items-center bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 gap-3 mb-2">
-        <Link2 size={18} className="text-slate-500 shrink-0" />
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => {
-            setUrl(e.target.value);
-            if (authNotice) setAuthNotice("");
-          }}
-          onKeyDown={(e) => e.key === "Enter" && handleShorten()}
-          placeholder="Paste your long URL here..."
-          className="flex-1 bg-transparent text-slate-300 text-sm outline-none placeholder-slate-600"
-        />
+      <div className="w-full flex flex-col gap-3 mb-2">
+        <div className="w-full flex items-center bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 gap-3">
+          <Link2 size={18} className="text-slate-500 shrink-0" />
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              if (authNotice) setAuthNotice("");
+            }}
+            onKeyDown={(e) => e.key === "Enter" && handleShorten()}
+            placeholder="Paste your long URL here..."
+            className="flex-1 bg-transparent text-slate-300 text-sm outline-none placeholder-slate-600"
+          />
+          <button
+            onClick={handleShorten}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shrink-0"
+          >
+            Shorten URL <ArrowRight size={14} />
+          </button>
+        </div>
+
+        {useCustom && (
+          <div className="w-full flex items-center bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 gap-3">
+            <span className="text-slate-400 text-sm font-medium shrink-0">
+              http://localhost:5000/
+            </span>
+            <input
+              type="text"
+              value={customCode}
+              onChange={(e) => setCustomCode(e.target.value)}
+              placeholder="custom-code"
+              className="flex-1 bg-transparent text-slate-300 text-sm outline-none placeholder-slate-600"
+            />
+          </div>
+        )}
+
         <button
-          onClick={handleShorten}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shrink-0"
+          onClick={() => setUseCustom(!useCustom)}
+          className="w-full text-left text-xs text-slate-400 hover:text-slate-300 transition-colors px-1 py-1"
         >
-          Shorten URL <ArrowRight size={14} />
+          {useCustom ? "✓ Custom URL" : "+ Add custom URL"}
         </button>
       </div>
 

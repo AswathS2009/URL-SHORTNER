@@ -1,32 +1,24 @@
-import React, { useState } from "react";
-import { Copy, BarChart2, Pencil, Trash2, Search, SlidersHorizontal, TrendingUp } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {
+  Copy,
+  BarChart2,
+  Pencil,
+  Trash2,
+  Search,
+  SlidersHorizontal,
+  TrendingUp,
+} from "lucide-react";
 
-const initialLinks = [
-  {
-    id: 1,
-    short: "linkr.co/dribbble-post",
-    original: "https://dribbble.com/shots/12345678-Design-Concept-Dashboard",
-    clicks: 1248,
-    date: "Oct 24, 2023",
-    trend: "up",
-  },
-  {
-    id: 2,
-    short: "linkr.co/newsletter-aug",
-    original: "https://mailchimp.com/campaigns/view/newsletter-august-2023-final",
-    clicks: 856,
-    date: "Oct 21, 2023",
-    trend: "up",
-  },
-  {
-    id: 3,
-    short: "linkr.co/app-download",
-    original: "https://apps.apple.com/us/app/example-app/id123456789",
-    clicks: 14092,
-    date: "Sep 12, 2023",
-    trend: "up",
-  },
-];
+const formatDate = (value) => {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  });
+};
 
 function LinkRow({ link, onCopy, onDelete }) {
   return (
@@ -42,13 +34,9 @@ function LinkRow({ link, onCopy, onDelete }) {
             <Copy size={13} />
           </button>
         </div>
-        <p className="text-slate-500 text-xs mt-0.5 truncate max-w-xs">{link.original}</p>
-      </div>
-
-      {/* Clicks */}
-      <div className="flex items-center gap-1.5 text-emerald-400 text-sm font-medium w-32 justify-center">
-        <TrendingUp size={14} />
-        <span>{link.clicks.toLocaleString()} clicks</span>
+        <p className="text-slate-500 text-xs mt-0.5 truncate max-w-xs">
+          {link.original}
+        </p>
       </div>
 
       {/* Date */}
@@ -76,18 +64,86 @@ function LinkRow({ link, onCopy, onDelete }) {
   );
 }
 
-export default function RecentLinks({ onCopy }) {
-  const [links, setLinks] = useState(initialLinks);
+export default function RecentLinks({ onCopy, isAuthenticated, token }) {
+  const [links, setLinks] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadLinks = async () => {
+      if (!isAuthenticated || !token) {
+        setLinks([]);
+        setError("");
+        return;
+      }
+
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch("http://localhost:5000/my-links", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          setError(data.message || "Unable to load your links");
+          setLinks([]);
+          return;
+        }
+
+        const mappedLinks = (data.links || []).map((item) => ({
+          id: item.id,
+          short: `http://localhost:5000/${item.short_code}`,
+          original: item.original_url,
+          clicks: Number(item.clicks || 0),
+          date: formatDate(item.created_at),
+        }));
+
+        setLinks(mappedLinks);
+      } catch {
+        setError("Unable to connect to server");
+        setLinks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLinks();
+  }, [isAuthenticated, token]);
 
   const filtered = links.filter(
     (l) =>
       l.short.toLowerCase().includes(search.toLowerCase()) ||
-      l.original.toLowerCase().includes(search.toLowerCase())
+      l.original.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const handleDelete = (id) => setLinks((prev) => prev.filter((l) => l.id !== id));
+  const handleDelete = async (id) => {
+    if (!isAuthenticated || !token) return;
 
+    try {
+      const response = await fetch(`http://localhost:5000/my-links/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Unable to delete link");
+        return;
+      }
+
+      setLinks((prev) => prev.filter((l) => l.id !== id));
+    } catch {
+      setError("Unable to connect to server");
+    }
+  };
   return (
     <section className="max-w-4xl mx-auto w-full px-4 pb-16">
       {/* Header */}
@@ -105,21 +161,34 @@ export default function RecentLinks({ onCopy }) {
               className="bg-transparent text-slate-300 text-xs outline-none placeholder-slate-600 w-44"
             />
           </div>
-          {/* Filter */}
-          <button className="flex items-center gap-2 bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium px-3 py-2 rounded-lg hover:bg-slate-700 transition-colors">
-            <SlidersHorizontal size={13} />
-            Filter
-          </button>
+          
         </div>
       </div>
 
       {/* Table */}
       <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
-        {filtered.length === 0 ? (
-          <div className="py-16 text-center text-slate-500 text-sm">No links found.</div>
+        {loading ? (
+          <div className="py-16 text-center text-slate-500 text-sm">
+            Loading your links...
+          </div>
+        ) : error ? (
+          <div className="py-16 text-center text-red-400 text-sm">{error}</div>
+        ) : !isAuthenticated ? (
+          <div className="py-16 text-center text-slate-500 text-sm">
+            Log in to see your recent links.
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="py-16 text-center text-slate-500 text-sm">
+            No links found.
+          </div>
         ) : (
           filtered.map((link) => (
-            <LinkRow key={link.id} link={link} onCopy={onCopy} onDelete={handleDelete} />
+            <LinkRow
+              key={link.id}
+              link={link}
+              onCopy={onCopy}
+              onDelete={handleDelete}
+            />
           ))
         )}
       </div>

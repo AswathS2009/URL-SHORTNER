@@ -3,14 +3,42 @@ const urlModel = require("../models/urlModel");
 
 const createShortUrl = async (req, res) => {
   try {
-    const { original_url } = req.body;
+    const { original_url, custom_code } = req.body;
     if (!original_url) {
       return res.status(400).json({ message: "URL is required" });
     }
 
-    const shortCode = generateCode();
-    const userId = req.user.id;
+    let shortCode = custom_code?.trim() || "";
 
+    // Validate custom code if provided
+    if (shortCode) {
+      if (shortCode.length < 3 || shortCode.length > 50) {
+        return res
+          .status(400)
+          .json({ message: "Custom code must be 3-50 characters long" });
+      }
+      if (!/^[a-zA-Z0-9_-]+$/.test(shortCode)) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "Custom code can only contain letters, numbers, hyphens, and underscores",
+          });
+      }
+
+      // Check if code already exists
+      const exists = await urlModel.codeExists(shortCode);
+      if (exists) {
+        return res
+          .status(409)
+          .json({ message: "This custom code is already taken" });
+      }
+    } else {
+      // Generate random code if no custom code provided
+      shortCode = generateCode();
+    }
+
+    const userId = req.user.id;
     await urlModel.createShortUrl(original_url, shortCode, userId);
 
     res.json({
@@ -46,7 +74,39 @@ const redirectUrl = async (req, res) => {
   }
 };
 
+const getMyLinks = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const links = await urlModel.getUrlsByUserId(userId);
+
+    return res.json({ links });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+const deleteMyLink = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ message: "Invalid link id" });
+    }
+
+    const result = await urlModel.deleteUrlByIdAndUserId(id, userId);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "link not found" });
+    }
+    return res.json({ message: "link deleted successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createShortUrl,
   redirectUrl,
+  getMyLinks,
+  deleteMyLink,
 };

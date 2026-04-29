@@ -1,9 +1,10 @@
 const express = require("express");
-const router = express.Router()
+const router = express.Router();
 const urlController = require("../controllers/urlController");
-const {protect} = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 
 router.post("/shorten", protect, urlController.createShortUrl);
+router.get("/my-links", protect, urlController.getMyLinks);
 router.get("/:code", urlController.redirectUrl);
-
+router.delete("/my-links/:id",protect,urlController.deleteMyLink);
 module.exports = router;
