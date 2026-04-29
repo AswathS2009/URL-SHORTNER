@@ -41,8 +41,13 @@ const createShortUrl = async (req, res) => {
     const userId = req.user.id;
     await urlModel.createShortUrl(original_url, shortCode, userId);
 
+    const forwardedProto = req.headers["x-forwarded-proto"];
+    const protocol = forwardedProto || req.protocol;
+    const host = req.get("host");
+    const baseUrl = process.env.BASE_URL || `${protocol}://${host}`;
+
     res.json({
-      short_url: `http://localhost:5000/${shortCode}`,
+      short_url: `${baseUrl}/${shortCode}`,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
