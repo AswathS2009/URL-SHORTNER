@@ -18,12 +18,10 @@ const createShortUrl = async (req, res) => {
           .json({ message: "Custom code must be 3-50 characters long" });
       }
       if (!/^[a-zA-Z0-9_-]+$/.test(shortCode)) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "Custom code can only contain letters, numbers, hyphens, and underscores",
-          });
+        return res.status(400).json({
+          message:
+            "Custom code can only contain letters, numbers, hyphens, and underscores",
+        });
       }
 
       // Check if code already exists

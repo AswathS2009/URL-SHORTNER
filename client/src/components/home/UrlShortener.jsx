@@ -154,10 +154,12 @@ export default function UrlShortener({
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <button className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 transition-colors">
-              <QrCode size={16} />
-            </button>
-            <button className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 transition-colors">
+            <button
+              onClick={() =>
+                window.open(shortened.short, "_blank", "noopener,noreferrer")
+              }
+              className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 transition-colors"
+            >
               <ExternalLink size={16} />
             </button>
             <button
