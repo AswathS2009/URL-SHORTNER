@@ -4,26 +4,18 @@ require("dotenv").config();
 
 const app = express();
 
-// CORS configuration
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:4173",
-  "http://localhost:3000",
-  "https://frontend-url-shortner-production.up.railway.app",
-  process.env.FRONTEND_URL,
-];
-
+// CORS middleware - must come before routes
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // Allow all origins for now to avoid CORS issues
-      callback(null, true);
-    },
+    origin: "*",
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+// Handle preflight requests
+app.options("*", cors());
 
 app.use(express.json());
 
