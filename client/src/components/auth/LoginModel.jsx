@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link2, X } from "lucide-react";
+import { API_BASE_URL } from "../../config/api";
 
 export default function LoginModel({
   isOpen,
@@ -44,7 +45,7 @@ export default function LoginModel({
       setIsLoading(true);
       setError("");
 
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

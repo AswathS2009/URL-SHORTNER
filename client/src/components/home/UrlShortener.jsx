@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Lock,
 } from "lucide-react";
+import { API_BASE_URL } from "../../config/api";
 
 export default function UrlShortener({
   onCopy,
@@ -35,7 +36,7 @@ export default function UrlShortener({
         payload.custom_code = customCode.trim();
       }
 
-      const response = await fetch("http://localhost:5000/shorten", {
+      const response = await fetch(`${API_BASE_URL}/shorten`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -116,7 +117,7 @@ export default function UrlShortener({
         {useCustom && (
           <div className="w-full flex items-center bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 gap-3">
             <span className="text-slate-400 text-sm font-medium shrink-0">
-              http://localhost:5000/
+              {API_BASE_URL}/
             </span>
             <input
               type="text"

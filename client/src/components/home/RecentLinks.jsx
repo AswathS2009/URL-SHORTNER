@@ -8,6 +8,7 @@ import {
   SlidersHorizontal,
   TrendingUp,
 } from "lucide-react";
+import { API_BASE_URL } from "../../config/api";
 
 const formatDate = (value) => {
   if (!value) return "-";
@@ -82,7 +83,7 @@ export default function RecentLinks({ onCopy, isAuthenticated, token }) {
       setError("");
 
       try {
-        const response = await fetch("http://localhost:5000/my-links", {
+        const response = await fetch(`${API_BASE_URL}/my-links`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -97,7 +98,7 @@ export default function RecentLinks({ onCopy, isAuthenticated, token }) {
 
         const mappedLinks = (data.links || []).map((item) => ({
           id: item.id,
-          short: `http://localhost:5000/${item.short_code}`,
+          short: `${API_BASE_URL}/${item.short_code}`,
           original: item.original_url,
           clicks: Number(item.clicks || 0),
           date: formatDate(item.created_at),
@@ -125,7 +126,7 @@ export default function RecentLinks({ onCopy, isAuthenticated, token }) {
     if (!isAuthenticated || !token) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/my-links/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/my-links/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -161,7 +162,6 @@ export default function RecentLinks({ onCopy, isAuthenticated, token }) {
               className="bg-transparent text-slate-300 text-xs outline-none placeholder-slate-600 w-44"
             />
           </div>
-          
         </div>
       </div>
 
