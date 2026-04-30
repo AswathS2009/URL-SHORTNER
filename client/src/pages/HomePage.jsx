@@ -18,8 +18,37 @@ export default function HomePage({
 }) {
   const [showToast, setShowToast] = useState(false);
 
-  const handleCopy = () => {
-    setShowToast(true);
+  const handleCopy = async (text) => {
+    if (!text) return;
+
+    let copied = false;
+
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      } else {
+        throw new Error("Clipboard API unavailable");
+      }
+    } catch {
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.top = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } catch {
+        copied = false;
+      }
+    }
+
+    if (copied) {
+      setShowToast(true);
+    }
   };
 
   return (

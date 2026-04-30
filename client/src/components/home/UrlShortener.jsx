@@ -64,8 +64,8 @@ export default function UrlShortener({
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${shortened.short}`).catch(() => {});
-    onCopy();
+    if (!shortened?.short) return;
+    onCopy?.(shortened.short);
   };
 
   return (
