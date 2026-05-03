@@ -22,7 +22,7 @@ Simple URL shortener with login, custom short codes, and recent links.
 ```bash
 cd server
 npm install
-npm run dev
+npm start
 ```
 
 Create a `.env` in `server/`:
