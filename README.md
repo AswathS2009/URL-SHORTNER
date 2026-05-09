@@ -59,8 +59,3 @@ VITE_API_BASE_URL=http://localhost:5000
 - `GET /my-links` (auth)
 - `DELETE /my-links/:id` (auth)
 - `GET /:code`
-
-## Deployment Notes
-
-- Frontend uses `VITE_API_BASE_URL` to reach backend.
-- Backend uses `BASE_URL` (optional) to build short URLs.

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Navbar from "../components/layout/Navbar";
 import UrlShortener from "../components/home/UrlShortener";
 import RecentLinks from "../components/home/RecentLinks";
@@ -17,7 +17,6 @@ export default function HomePage({
   onLogout,
 }) {
   const [showToast, setShowToast] = useState(false);
-  const [showDeployNotice, setShowDeployNotice] = useState(false);
 
   const handleCopy = async (text) => {
     if (!text) return;
@@ -52,16 +51,6 @@ export default function HomePage({
     }
   };
 
-  useEffect(() => {
-    const dismissed = localStorage.getItem("deployNoticeDismissed");
-    if (!dismissed) setShowDeployNotice(true);
-  }, []);
-
-  const handleCloseDeployNotice = () => {
-    localStorage.setItem("deployNoticeDismissed", "true");
-    setShowDeployNotice(false);
-  };
-
   return (
     <div className="min-h-screen bg-[#0d1117] relative overflow-x-hidden">
       {/* Background glow effects */}
@@ -70,48 +59,6 @@ export default function HomePage({
 
       {/* Toast */}
       <Toast show={showToast} onClose={() => setShowToast(false)} />
-
-      {showDeployNotice && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
-          <button
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={handleCloseDeployNotice}
-            aria-label="Close notice"
-          />
-          <div className="relative w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
-              <span className="text-sm font-semibold text-cyan-400">
-                Heads up about link length
-              </span>
-              <button
-                onClick={handleCloseDeployNotice}
-                className="p-1.5 text-slate-500 hover:text-slate-300 transition-colors"
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="p-5 space-y-3">
-              <p className="text-sm text-slate-300">
-                Right now the short URLs look a bit longer because the app is
-                hosted on Vercel and the subdomain cannot be shorter.
-              </p>
-              <p className="text-sm text-slate-400">
-                I will be buying a custom domain soon, and then the short URLs
-                will be much shorter.
-              </p>
-              <div className="flex justify-end">
-                <button
-                  onClick={handleCloseDeployNotice}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
-                >
-                  Got it
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       <LoginModel
         isOpen={activeModal === "login"}
