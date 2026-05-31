@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
+    "build": "node -e \"console.log('No server build step')\"",
     "dev": "nodemon server.js",
     "start": "node server.js"
   },
