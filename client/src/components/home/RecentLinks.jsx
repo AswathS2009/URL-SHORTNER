@@ -23,11 +23,11 @@ const formatDate = (value) => {
 
 function LinkRow({ link, onCopy, onDelete }) {
   return (
-    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 hover:bg-slate-800/40 transition-colors group">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 py-4 gap-3 border-b border-slate-800 hover:bg-slate-800/40 transition-colors group">
       {/* Left: Short + Original */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-white text-sm font-medium">{link.short}</span>
+          <span className="text-white text-sm font-medium truncate">{link.short}</span>
           <button
             onClick={() => onCopy(link.short)}
             className="text-slate-600 hover:text-slate-300 transition-colors opacity-0 group-hover:opacity-100"
@@ -35,19 +35,19 @@ function LinkRow({ link, onCopy, onDelete }) {
             <Copy size={13} />
           </button>
         </div>
-        <p className="text-slate-500 text-xs mt-0.5 truncate max-w-xs">
+        <p className="text-slate-500 text-xs mt-0.5 truncate max-w-full break-words">
           {link.original}
         </p>
       </div>
 
       {/* Date */}
-      <div className="flex items-center gap-2 text-slate-500 text-sm w-36 justify-center">
+      <div className="flex items-center gap-2 text-slate-500 text-sm w-full sm:w-36 justify-start sm:justify-center">
         <span className="w-2 h-2 rounded-full bg-slate-600 inline-block" />
         {link.date}
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 ml-4">
+      <div className="flex items-center gap-2 ml-0 sm:ml-4">
         <button
           onClick={() => onDelete(link.id)}
           className="p-1.5 text-slate-500 hover:text-red-400 transition-colors"

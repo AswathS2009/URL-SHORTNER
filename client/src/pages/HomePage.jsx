@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Navbar from "../components/layout/Navbar";
 import UrlShortener from "../components/home/UrlShortener";
 import RecentLinks from "../components/home/RecentLinks";
 import Toast from "../components/ui/Toast";
@@ -74,16 +73,7 @@ export default function HomePage({
         onSuccess={onAuthSuccess}
       />
 
-      {/* Navbar */}
-      <div className="relative z-10 max-w-6xl mx-auto">
-        <Navbar
-          isAuthenticated={isAuthenticated}
-          authUser={authUser}
-          onLoginClick={onLoginClick}
-          onSignupClick={onSignupClick}
-          onLogout={onLogout}
-        />
-      </div>
+      {/* Navbar removed */}
 
       {/* Hero + URL Shortener */}
       <div className="relative z-10 max-w-6xl mx-auto">

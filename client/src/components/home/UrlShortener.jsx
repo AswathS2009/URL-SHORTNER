@@ -75,12 +75,12 @@ export default function UrlShortener({
         <span>New: Custom branded domains are now available</span>
       </div>
 
-      <h1 className="text-5xl font-extrabold text-white leading-tight mb-4">
+      <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-4">
         Shorten URLs.
         <br />
         Expand your reach.
       </h1>
-      <p className="text-slate-400 text-base max-w-md mb-10 leading-relaxed">
+      <p className="text-sm sm:text-base text-slate-400 max-w-md mb-10 leading-relaxed">
         A modern, fast, and secure URL shortener for forward-thinking teams and
         creators. Track every click and optimize your links in real-time.
       </p>
@@ -93,7 +93,7 @@ export default function UrlShortener({
       )}
 
       <div className="w-full flex flex-col gap-3 mb-2">
-        <div className="w-full flex items-center bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 gap-3">
+        <div className="w-full flex flex-col sm:flex-row items-center bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 gap-3">
           <Link2 size={18} className="text-slate-500 shrink-0" />
           <input
             type="text"
@@ -104,11 +104,11 @@ export default function UrlShortener({
             }}
             onKeyDown={(e) => e.key === "Enter" && handleShorten()}
             placeholder="Paste your long URL here..."
-            className="flex-1 bg-transparent text-slate-300 text-sm outline-none placeholder-slate-600"
+            className="flex-1 w-full bg-transparent text-slate-300 text-sm outline-none placeholder-slate-600"
           />
           <button
             onClick={handleShorten}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shrink-0"
+            className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors shrink-0 w-full sm:w-auto"
           >
             Shorten URL <ArrowRight size={14} />
           </button>
@@ -124,7 +124,7 @@ export default function UrlShortener({
               value={customCode}
               onChange={(e) => setCustomCode(e.target.value)}
               placeholder="custom-code"
-              className="flex-1 bg-transparent text-slate-300 text-sm outline-none placeholder-slate-600"
+              className="flex-1 w-full bg-transparent text-slate-300 text-sm outline-none placeholder-slate-600"
             />
           </div>
         )}
@@ -144,7 +144,7 @@ export default function UrlShortener({
       )}
 
       {shortened && (
-        <div className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 flex items-center justify-between gap-4">
+        <div className="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-left min-w-0">
             <p className="text-white text-sm font-semibold">
               {shortened.short}
@@ -153,7 +153,7 @@ export default function UrlShortener({
               {shortened.original}
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 mt-3 sm:mt-0 shrink-0">
             <button
               onClick={() =>
                 window.open(shortened.short, "_blank", "noopener,noreferrer")
