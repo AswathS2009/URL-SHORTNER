@@ -73,7 +73,25 @@ export default function HomePage({
         onSuccess={onAuthSuccess}
       />
 
-      {/* Navbar removed */}
+      {/* Auth buttons (shown since Navbar was removed) */}
+      <div className="relative z-10 max-w-6xl mx-auto px-4 pt-4 flex justify-end">
+        {!isAuthenticated ? (
+          <div className="flex items-center gap-3">
+            <button
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              onClick={onLoginClick}
+            >
+              Log in
+            </button>
+            <button
+              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors"
+              onClick={onSignupClick}
+            >
+              Sign up
+            </button>
+          </div>
+        ) : null}
+      </div>
 
       {/* Hero + URL Shortener */}
       <div className="relative z-10 max-w-6xl mx-auto">

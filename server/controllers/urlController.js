@@ -36,7 +36,7 @@ const createShortUrl = async (req, res) => {
       shortCode = generateCode();
     }
 
-    const userId = req.user.id;
+    const userId = req.user?.id || null;
     await urlModel.createShortUrl(original_url, shortCode, userId);
 
     const forwardedProto = req.headers["x-forwarded-proto"];

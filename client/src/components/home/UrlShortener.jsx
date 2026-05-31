@@ -22,13 +22,15 @@ export default function UrlShortener({
   const [authNotice, setAuthNotice] = useState("");
 
   const handleShorten = async () => {
+    // Allow shortening without authentication. If the user is not logged in,
+    // the link will be created anonymously and won't appear in Recent Links.
     if (!isAuthenticated) {
-      setAuthNotice("Please log in or sign up to generate short URLs.");
-      onRequireLogin?.();
-      return;
+      setAuthNotice(
+        "Short URL will be created anonymously — log in to save it to your account."
+      );
+    } else {
+      setAuthNotice("");
     }
-
-    setAuthNotice("");
 
     try {
       const payload = { original_url: url };
@@ -36,12 +38,12 @@ export default function UrlShortener({
         payload.custom_code = customCode.trim();
       }
 
+      const headers = { "Content-Type": "application/json" };
+      if (isAuthenticated && token) headers.Authorization = `Bearer ${token}`;
+
       const response = await fetch(`${API_BASE_URL}/shorten`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify(payload),
       });
 
