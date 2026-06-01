@@ -68,10 +68,6 @@ export default function UrlShortener({
 
   return (
     <section className="flex flex-col items-center text-center px-4 pt-14 pb-20 max-w-2xl mx-auto w-full">
-      <div className="flex items-center gap-2 bg-slate-800/70 border border-slate-700 text-cyan-400 text-xs font-medium px-4 py-1.5 rounded-full mb-10">
-        <Link2 size={12} />
-        <span>New: Custom branded domains are now available</span>
-      </div>
 
       <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-4">
         Shorten URLs.

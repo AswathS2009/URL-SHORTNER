@@ -25,4 +25,28 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const optionalProtect = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1];
+    const secret = process.env.JWT_SECRET || "dev_jwt_secret_change_me";
+    const decoded = jwt.verify(token, secret);
+
+    const user = await userModel.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: "Not authorized, user not found" });
+    }
+
+    req.user = user;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Not authorized, invalid token" });
+  }
+};
+
+module.exports = { protect, optionalProtect };
