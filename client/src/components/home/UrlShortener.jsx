@@ -22,15 +22,11 @@ export default function UrlShortener({
   const [authNotice, setAuthNotice] = useState("");
 
   const handleShorten = async () => {
-    // Allow shortening without authentication. If the user is not logged in,
-    // the link will be created anonymously and won't appear in Recent Links.
-    if (!isAuthenticated) {
-      setAuthNotice(
-        "Short URL will be created anonymously — log in to save it to your account."
-      );
-    } else {
-      setAuthNotice("");
-    }
+    setAuthNotice(
+      isAuthenticated
+        ? ""
+        : "You can create this link without logging in. Log in to save it to Recent Links."
+    );
 
     try {
       const payload = { original_url: url };
