@@ -60,8 +60,21 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [totalClicks, setTotalClicks] = useState(null);
 
   useEffect(() => {
+    const loadGlobalClicks = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/stats/clicks`);
+        const data = await response.json();
+        if (response.ok) {
+          setTotalClicks(Number(data.totalClicks || 0));
+        }
+      } catch {
+        setTotalClicks(null);
+      }
+    };
+
     const loadLinks = async () => {
       if (!isAuthenticated || !token) {
         setLinks([]);
@@ -104,6 +117,7 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
       }
     };
 
+    loadGlobalClicks();
     loadLinks();
   }, [isAuthenticated, token]);
 
@@ -169,6 +183,17 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
           <BarChart2 size={15} />
           Manage and reuse your latest links
         </div>
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center gap-3 px-4 sm:px-0">
+        <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs text-slate-300">
+          Total clicks across all links: <span className="font-semibold text-white">{totalClicks === null ? "Loading" : totalClicks.toLocaleString()}</span>
+        </div>
+        {isAuthenticated ? (
+          <div className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs text-slate-300">
+            Your links show per-link clicks below.
+          </div>
+        ) : null}
       </div>
 
       <div className="flex justify-end px-4 sm:px-0">

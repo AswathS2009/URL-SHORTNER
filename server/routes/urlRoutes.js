@@ -5,6 +5,8 @@ const { protect, optionalProtect } = require("../middleware/authMiddleware");
 
 router.post("/shorten", optionalProtect, urlController.createShortUrl);
 router.get("/my-links", protect, urlController.getMyLinks);
+router.get("/stats/clicks", urlController.getGlobalClickStats);
+router.get("/stats/shortened", urlController.getGlobalUrlStats);
 router.get("/:code", urlController.redirectUrl);
 router.delete("/my-links/:id", protect, urlController.deleteMyLink);
 module.exports = router;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -24,10 +24,52 @@ export default function UrlShortener({
   const [useCustom, setUseCustom] = useState(false);
   const [shortened, setShortened] = useState(null);
   const [authNotice, setAuthNotice] = useState("");
+  const [totalShortened, setTotalShortened] = useState(null);
+  const [totalClicks, setTotalClicks] = useState(null);
+
+  useEffect(() => {
+    const loadTotalShortened = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/stats/shortened`);
+
+        const data = await response.json();
+        if (!response.ok) {
+          setTotalShortened(0);
+          return;
+        }
+
+        setTotalShortened(Number(data.totalUrls || 0));
+      } catch {
+        setTotalShortened(0);
+      }
+    };
+
+    loadTotalShortened();
+  }, []);
+
+  useEffect(() => {
+    const loadTotalClicks = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/stats/clicks`);
+
+        const data = await response.json();
+        if (!response.ok) {
+          setTotalClicks(0);
+          return;
+        }
+
+        setTotalClicks(Number(data.totalClicks || 0));
+      } catch {
+        setTotalClicks(0);
+      }
+    };
+
+    loadTotalClicks();
+  }, []);
 
   const heroStats = [
-    { value: "2.4B+", label: "Links Shortened" },
-    { value: "180+", label: "Countries Reached" },
+    { value: totalShortened === null ? "Loading" : totalShortened.toLocaleString(), label: "Links Shortened" },
+    { value: totalClicks === null ? "Loading" : totalClicks.toLocaleString(), label: "Total Clicks" },
     { value: "99.9%", label: "Uptime SLA" },
     { value: "< 50ms", label: "Redirect Speed" },
   ];
@@ -94,6 +136,8 @@ export default function UrlShortener({
     if (!shortened?.short) return;
     onCopy?.(shortened.short);
   };
+
+  
 
   return (
     <section className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 pb-6 pt-6 text-center sm:px-6">

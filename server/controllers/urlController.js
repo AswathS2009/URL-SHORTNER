@@ -63,26 +63,49 @@ const redirectUrl = async (req, res) => {
       return res.status(404).json({ message: "URL not found" });
     }
 
-    const originalUrl = result[0].original_url;
+    const url = result[0];
 
-    if (!originalUrl) {
-      return res
-        .status(500)
-        .json({ message: "URL record is missing the destination address" });
+    if (!url.original_url) {
+      return res.status(500).json({
+        message: "URL record is missing the destination address",
+      });
     }
 
-    res.redirect(originalUrl);
+    await urlModel.incrementClicks(url.id);
+
+    return res.redirect(url.original_url);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
 
 const getMyLinks = async (req, res) => {
   try {
     const userId = req.user.id;
-    const links = await urlModel.getUrlsByUserId(userId);
+    const [links, totalClicks] = await Promise.all([
+      urlModel.getUrlsByUserId(userId),
+      urlModel.getTotalClicksByUserId(userId),
+    ]);
 
-    return res.json({ links });
+    return res.json({ links, totalClicks });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+const getGlobalClickStats = async (_req, res) => {
+  try {
+    const totalClicks = await urlModel.getTotalClicksOverall();
+    return res.json({ totalClicks });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+const getGlobalUrlStats = async (_req, res) => {
+  try {
+    const totalUrls = await urlModel.getTotalUrlsOverall();
+    return res.json({ totalUrls });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -111,5 +134,7 @@ module.exports = {
   createShortUrl,
   redirectUrl,
   getMyLinks,
+  getGlobalClickStats,
+  getGlobalUrlStats,
   deleteMyLink,
 };
