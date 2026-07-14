@@ -51,7 +51,7 @@ export default function HomePage({
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1117] relative overflow-x-hidden">
+    <main className="min-h-screen bg-[#0d1117] relative overflow-x-hidden">
       {/* Background glow effects */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-175 h-100 bg-indigo-900/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-32 left-1/2 -translate-x-1/2 w-100 h-50 bg-cyan-900/10 rounded-full blur-2xl pointer-events-none" />
@@ -73,8 +73,7 @@ export default function HomePage({
         onSuccess={onAuthSuccess}
       />
 
-      {/* Auth buttons (shown since Navbar was removed) */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 pt-4 flex justify-end">
+      <header className="relative z-10 max-w-6xl mx-auto px-4 pt-4 flex justify-end">
         {!isAuthenticated ? (
           <div className="flex items-center gap-3">
             <button
@@ -91,9 +90,8 @@ export default function HomePage({
             </button>
           </div>
         ) : null}
-      </div>
+      </header>
 
-      {/* Hero + URL Shortener */}
       <div className="relative z-10 max-w-6xl mx-auto">
         <UrlShortener
           onCopy={handleCopy}
@@ -103,12 +101,39 @@ export default function HomePage({
         />
       </div>
 
-      {/* Divider */}
+      <section className="relative z-10 max-w-6xl mx-auto px-4 pb-8" aria-labelledby="why-linkr-heading">
+        <div className="grid gap-4 md:grid-cols-3 rounded-3xl border border-slate-800 bg-slate-900/40 p-6 md:p-8">
+          <div>
+            <h2 id="why-linkr-heading" className="text-lg font-semibold text-white mb-2">
+              Why use Linkr?
+            </h2>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Shorten long URLs into clean links that are easier to share, track, and remember.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-base font-semibold text-white mb-2">
+              Custom short codes
+            </h3>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Create branded slugs for campaigns, social posts, and product launches.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-base font-semibold text-white mb-2">
+              Recent link management
+            </h3>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              Log in to save your links, revisit past URLs, and delete anything you no longer need.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <div className="relative z-10 max-w-4xl mx-auto px-4">
         <div className="h-px bg-slate-800 mb-10" />
       </div>
 
-      {/* Recent Links */}
       <div className="relative z-10 max-w-6xl mx-auto">
         <RecentLinks
           onCopy={handleCopy}
@@ -116,6 +141,6 @@ export default function HomePage({
           token={authToken}
         />
       </div>
-    </div>
+    </main>
   );
 }
