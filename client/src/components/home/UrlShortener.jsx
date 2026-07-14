@@ -82,7 +82,7 @@ export default function UrlShortener({
       {!isAuthenticated && (
         <div className="w-full mb-3 flex items-center justify-center gap-2 rounded-lg border border-cyan-900/50 bg-cyan-950/20 text-cyan-300 text-xs px-3 py-2">
           <Lock size={13} />
-          <span>Login required to create short links</span>
+          <span>Login required if you want your short url's to be saved in Recent Links</span>
         </div>
       )}
 
