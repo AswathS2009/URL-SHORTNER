@@ -17,6 +17,7 @@ export default function UrlShortener({
   token,
   onRequireLogin,
   onSignupClick,
+  onAuthExpired,
 }) {
   const [url, setUrl] = useState("");
   const [customCode, setCustomCode] = useState("");
@@ -30,6 +31,22 @@ export default function UrlShortener({
     { value: "99.9%", label: "Uptime SLA" },
     { value: "< 50ms", label: "Redirect Speed" },
   ];
+
+  const handleAuthFailure = (message) => {
+    const normalized = (message || "").toLowerCase();
+    const expired =
+      normalized.includes("not authorized") ||
+      normalized.includes("invalid token") ||
+      normalized.includes("token missing") ||
+      normalized.includes("user not found");
+
+    if (expired) {
+      onAuthExpired?.();
+      return true;
+    }
+
+    return false;
+  };
 
   const handleShorten = async () => {
     setAuthNotice(
@@ -55,7 +72,9 @@ export default function UrlShortener({
 
       const data = await response.json();
       if (!response.ok) {
-        setAuthNotice(data.message || "Unable to shorten URL");
+        if (!handleAuthFailure(data.message)) {
+          setAuthNotice(data.message || "Unable to shorten URL");
+        }
         return;
       }
 

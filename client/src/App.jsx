@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import HomePage from "./pages/HomePage";
+import { API_BASE_URL } from "./config/api";
 
 function App() {
   const [authToken, setAuthToken] = useState(
@@ -16,6 +17,12 @@ function App() {
       return null;
     }
   });
+
+  const handleAuthExpired = () => {
+    setAuthUser(null);
+    setAuthToken("");
+    setActiveModal("login");
+  };
 
   useEffect(() => {
     if (authToken) {
@@ -50,6 +57,37 @@ function App() {
     setAuthToken("");
     closeModal();
   };
+
+  useEffect(() => {
+    if (!authToken) return undefined;
+
+    const controller = new AbortController();
+
+    const verifySession = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          signal: controller.signal,
+        });
+
+        if (response.ok) return;
+
+        if (response.status === 401) {
+          handleAuthExpired();
+        }
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.log("Session verification failed:", error);
+        }
+      }
+    };
+
+    verifySession();
+
+    return () => controller.abort();
+  }, [authToken]);
 
   useEffect(() => {
     const title = "Linkr | Fast URL Shortener";
@@ -168,6 +206,7 @@ function App() {
       onCloseModal={closeModal}
       onAuthSuccess={handleAuthSuccess}
       onLogout={handleLogout}
+      onAuthExpired={handleAuthExpired}
     />
   );
 }
