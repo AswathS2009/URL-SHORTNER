@@ -1,0 +1,20 @@
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	min-width: 320px;
+	background:
+		radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 30%),
+		#0d1117;
+	color: #e5e7eb;
+}
+
+#root {
+	min-height: 100vh;
+}
+
+::selection {
+	background: rgba(16, 185, 129, 0.35);
+	color: #fff;
+}

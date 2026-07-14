@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Copy,
-  BarChart2,
-  Pencil,
-  Trash2,
-  Search,
-  SlidersHorizontal,
-  TrendingUp,
-} from "lucide-react";
+import { BarChart2, Clock3, Copy, Link2, Search, Trash2 } from "lucide-react";
 import { API_BASE_URL } from "../../config/api";
 
 const formatDate = (value) => {
@@ -23,36 +15,40 @@ const formatDate = (value) => {
 
 function LinkRow({ link, onCopy, onDelete }) {
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 py-4 gap-3 border-b border-slate-800 hover:bg-slate-800/40 transition-colors group">
-      {/* Left: Short + Original */}
-      <div className="min-w-0 flex-1">
+    <div className="grid gap-4 border-b border-white/10 px-4 py-4 transition-colors hover:bg-white/[0.03] sm:grid-cols-[minmax(0,1.8fr)_140px_110px_72px] sm:items-center sm:px-6 group">
+      <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-white text-sm font-medium truncate">{link.short}</span>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200">
+            <Link2 size={14} />
+          </span>
+          <span className="truncate text-sm font-medium text-white">{link.short}</span>
           <button
             onClick={() => onCopy(link.short)}
-            className="text-slate-600 hover:text-slate-300 transition-colors opacity-0 group-hover:opacity-100"
+            className="text-slate-500 transition-colors opacity-0 hover:text-slate-200 group-hover:opacity-100"
           >
             <Copy size={13} />
           </button>
         </div>
-        <p className="text-slate-500 text-xs mt-0.5 truncate max-w-full break-words">
-          {link.original}
-        </p>
+        <p className="mt-1 truncate text-xs text-slate-500">{link.original}</p>
       </div>
 
-      {/* Date */}
-      <div className="flex items-center gap-2 text-slate-500 text-sm w-full sm:w-36 justify-start sm:justify-center">
-        <span className="w-2 h-2 rounded-full bg-slate-600 inline-block" />
+      <div className="flex items-center gap-2 text-sm text-slate-400">
+        <Clock3 size={14} className="text-slate-300/70" />
         {link.date}
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-2 ml-0 sm:ml-4">
+      <div className="flex items-center gap-2">
+        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200/80">
+          {link.clicks.toLocaleString()} clicks
+        </span>
+      </div>
+
+      <div className="flex items-center justify-start gap-2 sm:justify-end">
         <button
           onClick={() => onDelete(link.id)}
-          className="p-1.5 text-slate-500 hover:text-red-400 transition-colors"
+          className="inline-flex h-9 items-center justify-center rounded-lg border border-white/5 bg-white/[0.03] px-3 text-slate-400 transition-colors hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-300"
         >
-          <Trash2 size={15} />
+          <Trash2 size={14} />
         </button>
       </div>
     </div>
@@ -145,40 +141,57 @@ export default function RecentLinks({ onCopy, isAuthenticated, token }) {
       setError("Unable to connect to server");
     }
   };
+
   return (
-    <section className="max-w-4xl mx-auto w-full px-4 pb-16">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="text-white text-xl font-bold">Recent Links</h2>
-        <div className="flex items-center gap-3">
-          {/* Search */}
-          <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2">
-            <Search size={14} className="text-slate-500" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search your links..."
-              className="bg-transparent text-slate-300 text-xs outline-none placeholder-slate-600 w-44"
-            />
-          </div>
+    <section className="mx-auto w-full max-w-7xl pb-20">
+      <div className="mb-5 flex flex-col gap-4 px-4 sm:flex-row sm:items-end sm:justify-between sm:px-0">
+        <div>
+          <p className="mb-2 text-xs uppercase tracking-[0.22em] text-slate-400">
+            Recent Links
+          </p>
+          <h2 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+            Recent Links
+          </h2>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-slate-400">
+          <BarChart2 size={15} />
+          Manage and reuse your latest links
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden">
+      <div className="flex justify-end px-4 sm:px-0">
+        <div className="flex w-full items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl sm:w-auto">
+          <Search size={14} className="text-slate-500" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search your links..."
+            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500 sm:w-56"
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-[0_30px_100px_rgba(0,0,0,0.32)] backdrop-blur-xl">
+        <div className="grid gap-4 border-b border-white/10 px-4 py-4 text-[11px] uppercase tracking-[0.22em] text-slate-500 sm:grid-cols-[minmax(0,1.8fr)_140px_110px_72px] sm:px-6">
+          <div>Original URL</div>
+          <div>Date</div>
+          <div>Clicks</div>
+          <div className="text-left sm:text-right">Actions</div>
+        </div>
+
         {loading ? (
-          <div className="py-16 text-center text-slate-500 text-sm">
+          <div className="py-16 text-center text-sm text-slate-400">
             Loading your links...
           </div>
         ) : error ? (
-          <div className="py-16 text-center text-red-400 text-sm">{error}</div>
+          <div className="py-16 text-center text-sm text-red-300">{error}</div>
         ) : !isAuthenticated ? (
-          <div className="py-16 text-center text-slate-500 text-sm">
+          <div className="py-16 text-center text-sm text-slate-400">
             Log in to see your recent links.
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-16 text-center text-slate-500 text-sm">
+          <div className="py-16 text-center text-sm text-slate-400">
             No links found.
           </div>
         ) : (
@@ -191,6 +204,13 @@ export default function RecentLinks({ onCopy, isAuthenticated, token }) {
             />
           ))
         )}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between px-4 text-[11px] text-slate-500 sm:hidden">
+        <div className="flex items-center gap-2">
+          <BarChart2 size={12} />
+          <span>Quick filters and search are available on larger screens.</span>
+        </div>
       </div>
     </section>
   );

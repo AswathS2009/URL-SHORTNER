@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import UrlShortener from "../components/home/UrlShortener";
 import RecentLinks from "../components/home/RecentLinks";
+import ThreeBackdrop from "../components/home/ThreeBackdrop";
 import Toast from "../components/ui/Toast";
 import LoginModel from "../components/auth/LoginModel";
 import SignupModel from "../components/auth/SignupModel";
@@ -51,12 +52,11 @@ export default function HomePage({
   };
 
   return (
-    <main className="min-h-screen bg-[#0d1117] relative overflow-x-hidden">
-      {/* Background glow effects */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-175 h-100 bg-indigo-900/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-32 left-1/2 -translate-x-1/2 w-100 h-50 bg-cyan-900/10 rounded-full blur-2xl pointer-events-none" />
+    <main className="min-h-screen relative overflow-x-hidden bg-[#06070a] text-slate-100">
+      <ThreeBackdrop />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_34%),radial-gradient(circle_at_20%_20%,rgba(148,163,184,0.08),transparent_18%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.06),transparent_22%)]" />
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,rgba(255,255,255,0.04),transparent_18%,transparent_82%,rgba(0,0,0,0.7))]" />
 
-      {/* Toast */}
       <Toast show={showToast} onClose={() => setShowToast(false)} />
 
       <LoginModel
@@ -73,17 +73,23 @@ export default function HomePage({
         onSuccess={onAuthSuccess}
       />
 
-      <header className="relative z-10 max-w-6xl mx-auto px-4 pt-4 flex justify-end">
+      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 pt-5 sm:px-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)] backdrop-blur">
+            <span className="h-2 w-2 rounded-full bg-white/80" />
+          </div>
+          <span className="text-lg font-semibold tracking-tight text-white">Linkr</span>
+        </div>
         {!isAuthenticated ? (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
-              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              className="rounded-md border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm font-medium text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
               onClick={onLoginClick}
             >
               Log in
             </button>
             <button
-              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors"
+              className="rounded-md border border-white/10 bg-white px-3.5 py-1.5 text-sm font-semibold text-slate-950 shadow-[0_18px_50px_rgba(255,255,255,0.08)] transition-colors hover:bg-slate-100"
               onClick={onSignupClick}
             >
               Sign up
@@ -92,49 +98,17 @@ export default function HomePage({
         ) : null}
       </header>
 
-      <div className="relative z-10 max-w-6xl mx-auto">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         <UrlShortener
           onCopy={handleCopy}
           isAuthenticated={isAuthenticated}
           token={authToken}
           onRequireLogin={onLoginClick}
+          onSignupClick={onSignupClick}
         />
       </div>
 
-      <section className="relative z-10 max-w-6xl mx-auto px-4 pb-8" aria-labelledby="why-linkr-heading">
-        <div className="grid gap-4 md:grid-cols-3 rounded-3xl border border-slate-800 bg-slate-900/40 p-6 md:p-8">
-          <div>
-            <h2 id="why-linkr-heading" className="text-lg font-semibold text-white mb-2">
-              Why use Linkr?
-            </h2>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Shorten long URLs into clean links that are easier to share, track, and remember.
-            </p>
-          </div>
-          <div>
-            <h3 className="text-base font-semibold text-white mb-2">
-              Custom short codes
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Create branded slugs for campaigns, social posts, and product launches.
-            </p>
-          </div>
-          <div>
-            <h3 className="text-base font-semibold text-white mb-2">
-              Recent link management
-            </h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
-              Log in to save your links, revisit past URLs, and delete anything you no longer need.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <div className="relative z-10 max-w-4xl mx-auto px-4">
-        <div className="h-px bg-slate-800 mb-10" />
-      </div>
-
-      <div className="relative z-10 max-w-6xl mx-auto">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-10 sm:px-6 sm:pt-12">
         <RecentLinks
           onCopy={handleCopy}
           isAuthenticated={isAuthenticated}
