@@ -55,7 +55,7 @@ function LinkRow({ link, onCopy, onDelete }) {
   );
 }
 
-export default function RecentLinks({ onCopy, isAuthenticated, token }) {
+export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpired }) {
   const [links, setLinks] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -132,6 +132,18 @@ export default function RecentLinks({ onCopy, isAuthenticated, token }) {
       const data = await response.json();
 
       if (!response.ok) {
+        const normalized = (data.message || "").toLowerCase();
+        const expired =
+          normalized.includes("not authorized") ||
+          normalized.includes("invalid token") ||
+          normalized.includes("token missing") ||
+          normalized.includes("user not found");
+
+        if (expired) {
+          onAuthExpired?.();
+          return;
+        }
+
         setError(data.message || "Unable to delete link");
         return;
       }

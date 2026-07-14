@@ -15,6 +15,7 @@ export default function HomePage({
   onCloseModal,
   onAuthSuccess,
   onLogout,
+  onAuthExpired,
 }) {
   const [showToast, setShowToast] = useState(false);
 
@@ -105,6 +106,7 @@ export default function HomePage({
           token={authToken}
           onRequireLogin={onLoginClick}
           onSignupClick={onSignupClick}
+          onAuthExpired={onAuthExpired}
         />
       </div>
 
@@ -113,6 +115,7 @@ export default function HomePage({
           onCopy={handleCopy}
           isAuthenticated={isAuthenticated}
           token={authToken}
+          onAuthExpired={onAuthExpired}
         />
       </div>
     </main>
