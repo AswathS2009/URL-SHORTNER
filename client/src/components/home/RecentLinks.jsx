@@ -133,6 +133,8 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
   });
 
   const handleDelete = async (id) => {
+    console.log("Deleting id:", id);
+    console.log(links);
     if (!isAuthenticated || !token) return;
 
     try {
