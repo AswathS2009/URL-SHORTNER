@@ -122,7 +122,7 @@ const deleteMyLink = async (req, res) => {
     const result = await urlModel.deleteUrlByIdAndUserId(id, userId);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "link not found" });
+      return res.status(200).json({ message: "link already deleted" });
     }
     return res.json({ message: "link deleted successfully" });
   } catch (err) {

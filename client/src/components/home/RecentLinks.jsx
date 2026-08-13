@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BarChart2, Clock3, Copy, Link2, Search, Trash2 } from "lucide-react";
 import { API_BASE_URL } from "../../config/api";
 
@@ -13,7 +13,7 @@ const formatDate = (value) => {
   });
 };
 
-function LinkRow({ link, onCopy, onDelete }) {
+function LinkRow({ link, onCopy, onDelete, deletingIds }) {
   return (
     <div className="grid gap-4 border-b border-white/10 px-4 py-4 transition-colors hover:bg-white/[0.03] sm:grid-cols-[minmax(0,1.8fr)_140px_110px_72px] sm:items-center sm:px-6 group">
       <div className="min-w-0">
@@ -46,7 +46,8 @@ function LinkRow({ link, onCopy, onDelete }) {
       <div className="flex items-center justify-start gap-2 sm:justify-end">
         <button
           onClick={() => onDelete(link.id)}
-          className="inline-flex h-9 items-center justify-center rounded-lg border border-white/5 bg-white/[0.03] px-3 text-slate-400 transition-colors hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-300"
+          disabled={deletingIds.has(link.id)}
+          className="inline-flex h-9 items-center justify-center rounded-lg border border-white/5 bg-white/[0.03] px-3 text-slate-400 transition-colors hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Trash2 size={14} />
         </button>
@@ -61,6 +62,8 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [totalClicks, setTotalClicks] = useState(null);
+  const [deletingIds, setDeletingIds] = useState(new Set());
+  const deletingIdsRef = useRef(new Set());
 
   useEffect(() => {
     const loadGlobalClicks = async () => {
@@ -133,9 +136,13 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
   });
 
   const handleDelete = async (id) => {
-    console.log("Deleting id:", id);
-    console.log(links);
     if (!isAuthenticated || !token) return;
+
+    if (deletingIdsRef.current.has(id)) return;
+
+    deletingIdsRef.current = new Set(deletingIdsRef.current).add(id);
+    setDeletingIds(deletingIdsRef.current);
+    setError("");
 
     try {
       const response = await fetch(`${API_BASE_URL}/my-links/${id}`, {
@@ -145,7 +152,7 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
         },
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         const normalized = (data.message || "").toLowerCase();
@@ -160,6 +167,11 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
           return;
         }
 
+        if (normalized.includes("link not found") || normalized.includes("url not found")) {
+          setLinks((prev) => prev.filter((l) => l.id !== id));
+          return;
+        }
+
         setError(data.message || "Unable to delete link");
         return;
       }
@@ -167,6 +179,10 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
       setLinks((prev) => prev.filter((l) => l.id !== id));
     } catch {
       setError("Unable to connect to server");
+    } finally {
+      deletingIdsRef.current = new Set(deletingIdsRef.current);
+      deletingIdsRef.current.delete(id);
+      setDeletingIds(new Set(deletingIdsRef.current));
     }
   };
 
@@ -240,6 +256,7 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
               link={link}
               onCopy={onCopy}
               onDelete={handleDelete}
+              deletingIds={deletingIds}
             />
           ))
         )}
