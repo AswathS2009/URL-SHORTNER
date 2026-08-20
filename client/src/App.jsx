@@ -21,6 +21,8 @@ function App() {
   const handleAuthExpired = () => {
     setAuthUser(null);
     setAuthToken("");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("authUser");
     setActiveModal("login");
   };
 
