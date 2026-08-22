@@ -17,5 +17,8 @@
     "link-management"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  }
 }

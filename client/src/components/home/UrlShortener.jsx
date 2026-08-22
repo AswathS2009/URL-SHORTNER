@@ -8,7 +8,10 @@ import {
   Link2,
   Lock,
   ShieldCheck,
+  QrCode,
+  Download,
 } from "lucide-react";
+import QRCode from "qrcode";
 import { API_BASE_URL } from "../../config/api";
 
 export default function UrlShortener({
@@ -26,6 +29,32 @@ export default function UrlShortener({
   const [authNotice, setAuthNotice] = useState("");
   const [totalShortened, setTotalShortened] = useState(null);
   const [totalClicks, setTotalClicks] = useState(null);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
+  const [showQr, setShowQr] = useState(false);
+
+  useEffect(() => {
+    if (!shortened?.short) {
+      setQrDataUrl(null);
+      setShowQr(false);
+      return;
+    }
+
+    QRCode.toDataURL(shortened.short, {
+      width: 240,
+      margin: 1,
+      color: { dark: "#000000", light: "#ffffff" },
+    })
+      .then(setQrDataUrl)
+      .catch((err) => console.error("QR generation failed:", err));
+  }, [shortened]);
+
+  const handleDownloadQr = () => {
+    if (!qrDataUrl) return;
+    const link = document.createElement("a");
+    link.href = qrDataUrl;
+    link.download = "qr-code.png";
+    link.click();
+  };
 
   useEffect(() => {
     const loadTotalShortened = async () => {
@@ -68,8 +97,15 @@ export default function UrlShortener({
   }, []);
 
   const heroStats = [
-    { value: totalShortened === null ? "Loading" : totalShortened.toLocaleString(), label: "Links Shortened" },
-    { value: totalClicks === null ? "Loading" : totalClicks.toLocaleString(), label: "Total Clicks" },
+    {
+      value:
+        totalShortened === null ? "Loading" : totalShortened.toLocaleString(),
+      label: "Links Shortened",
+    },
+    {
+      value: totalClicks === null ? "Loading" : totalClicks.toLocaleString(),
+      label: "Total Clicks",
+    },
     { value: "99.9%", label: "Uptime SLA" },
     { value: "< 50ms", label: "Redirect Speed" },
   ];
@@ -94,7 +130,7 @@ export default function UrlShortener({
     setAuthNotice(
       isAuthenticated
         ? ""
-        : "You can create this link without logging in. Log in to save it to Recent Links."
+        : "You can create this link without logging in. Log in to save it to Recent Links.",
     );
 
     try {
@@ -137,8 +173,6 @@ export default function UrlShortener({
     onCopy?.(shortened.short);
   };
 
-  
-
   return (
     <section className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 pb-6 pt-6 text-center sm:px-6">
       <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-medium text-slate-200 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] backdrop-blur sm:text-xs">
@@ -153,8 +187,8 @@ export default function UrlShortener({
           <span className="text-slate-300">Expand your reach.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-slate-400 sm:text-lg">
-          A blazing-fast, secure URL shortener with real-time analytics.
-          Built for teams who care about every click.
+          A blazing-fast, secure URL shortener with real-time analytics. Built
+          for teams who care about every click.
         </p>
       </div>
 
@@ -162,7 +196,10 @@ export default function UrlShortener({
         <div className="mt-8 w-full max-w-3xl rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] text-slate-300 sm:text-xs backdrop-blur">
           <div className="flex items-center justify-center gap-2">
             <Lock size={13} />
-            <span>Login required if you want your short links to be saved in Recent Links</span>
+            <span>
+              Login required if you want your short links to be saved in Recent
+              Links
+            </span>
           </div>
         </div>
       )}
@@ -248,6 +285,12 @@ export default function UrlShortener({
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <button
+                onClick={() => setShowQr((v) => !v)}
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 text-slate-200 transition-colors hover:bg-white/10"
+              >
+                <QrCode size={16} />
+              </button>
+              <button
                 onClick={() =>
                   window.open(shortened.short, "_blank", "noopener,noreferrer")
                 }
@@ -263,6 +306,21 @@ export default function UrlShortener({
               </button>
             </div>
           </div>
+          {showQr && qrDataUrl && (
+            <div className="mt-4 flex flex-col items-center gap-3 border-t border-white/10 pt-4">
+              <img
+                src={qrDataUrl}
+                alt="QR code for shortened URL"
+                className="h-40 w-40 rounded-xl bg-white p-2"
+              />
+              <button
+                onClick={handleDownloadQr}
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition-colors hover:bg-white/10"
+              >
+                <Download size={13} /> Download PNG
+              </button>
+            </div>
+          )}
         </div>
       )}
 
