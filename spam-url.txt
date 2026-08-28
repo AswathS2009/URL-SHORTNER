@@ -1,0 +1,20 @@
+Attacker
+   │
+   │ submits
+   ▼
+https://malicious-site.com/login?steal=password
+   │
+   │ your URL shortener creates
+   ▼
+https://yourdomain.com/a8Kx2
+   │
+   │ sends to victim
+   ▼
+Victim clicks
+   │
+   ▼
+Your server
+   │
+   │ redirects
+   ▼
+🚨 Malicious website

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { BarChart2, Clock3, Copy, Link2, Search, Trash2 } from "lucide-react";
+import { BarChart2, Clock3, Copy, Download, Link2, QrCode, Search, Trash2 } from "lucide-react";
+import QRCode from "qrcode";
 import { API_BASE_URL } from "../../config/api";
 
 const formatDate = (value) => {
@@ -13,45 +14,87 @@ const formatDate = (value) => {
   });
 };
 
-function LinkRow({ link, onCopy, onDelete, deletingIds }) {
+function LinkRow({ link, onCopy, onDelete, deletingIds, onToggleQr, isQrOpen, qrDataUrl }) {
+  const handleDownloadQr = () => {
+    if (!qrDataUrl) return;
+    const a = document.createElement("a");
+    a.href = qrDataUrl;
+    a.download = `qr-${link.shortCode || link.id}.png`;
+    a.click();
+  };
+
   return (
-    <div className="grid gap-4 border-b border-white/10 px-4 py-4 transition-colors hover:bg-white/[0.03] sm:grid-cols-[minmax(0,1.8fr)_140px_110px_72px] sm:items-center sm:px-6 group">
-      <div className="min-w-0">
+    <div className="border-b border-white/10 transition-colors hover:bg-white/[0.03]">
+      <div className="grid gap-4 px-4 py-4 sm:grid-cols-[minmax(0,1.8fr)_140px_110px_100px] sm:items-center sm:px-6 group">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200">
+              <Link2 size={14} />
+            </span>
+            <span className="truncate text-sm font-medium text-white">{link.short}</span>
+            <button
+              onClick={() => onCopy(link.short)}
+              className="text-slate-500 transition-colors opacity-0 hover:text-slate-200 group-hover:opacity-100"
+            >
+              <Copy size={13} />
+            </button>
+          </div>
+          <p className="mt-1 truncate text-xs text-slate-500">{link.original}</p>
+        </div>
+
+        <div className="flex items-center gap-2 text-sm text-slate-400">
+          <Clock3 size={14} className="text-slate-300/70" />
+          {link.date}
+        </div>
+
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200">
-            <Link2 size={14} />
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200/80">
+            {link.clicks.toLocaleString()} clicks
           </span>
-          <span className="truncate text-sm font-medium text-white">{link.short}</span>
+        </div>
+
+        <div className="flex items-center justify-start gap-2 sm:justify-end">
           <button
-            onClick={() => onCopy(link.short)}
-            className="text-slate-500 transition-colors opacity-0 hover:text-slate-200 group-hover:opacity-100"
+            onClick={() => onToggleQr(link)}
+            className={`inline-flex h-9 items-center justify-center rounded-lg border px-3 transition-colors ${
+              isQrOpen
+                ? "border-white/20 bg-white/10 text-white"
+                : "border-white/5 bg-white/[0.03] text-slate-400 hover:bg-white/10 hover:text-slate-200"
+            }`}
           >
-            <Copy size={13} />
+            <QrCode size={14} />
+          </button>
+          <button
+            onClick={() => onDelete(link.id)}
+            disabled={deletingIds.has(link.id)}
+            className="inline-flex h-9 items-center justify-center rounded-lg border border-white/5 bg-white/[0.03] px-3 text-slate-400 transition-colors hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Trash2 size={14} />
           </button>
         </div>
-        <p className="mt-1 truncate text-xs text-slate-500">{link.original}</p>
       </div>
 
-      <div className="flex items-center gap-2 text-sm text-slate-400">
-        <Clock3 size={14} className="text-slate-300/70" />
-        {link.date}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-200/80">
-          {link.clicks.toLocaleString()} clicks
-        </span>
-      </div>
-
-      <div className="flex items-center justify-start gap-2 sm:justify-end">
-        <button
-          onClick={() => onDelete(link.id)}
-          disabled={deletingIds.has(link.id)}
-          className="inline-flex h-9 items-center justify-center rounded-lg border border-white/5 bg-white/[0.03] px-3 text-slate-400 transition-colors hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Trash2 size={14} />
-        </button>
-      </div>
+      {isQrOpen && (
+        <div className="flex flex-col items-center gap-3 border-t border-white/10 px-4 py-5 sm:px-6">
+          {qrDataUrl ? (
+            <>
+              <img
+                src={qrDataUrl}
+                alt={`QR code for ${link.short}`}
+                className="h-40 w-40 rounded-xl bg-white p-2"
+              />
+              <button
+                onClick={handleDownloadQr}
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition-colors hover:bg-white/10"
+              >
+                <Download size={13} /> Download PNG
+              </button>
+            </>
+          ) : (
+            <div className="text-xs text-slate-400">Generating QR code...</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -64,6 +107,8 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
   const [totalClicks, setTotalClicks] = useState(null);
   const [deletingIds, setDeletingIds] = useState(new Set());
   const deletingIdsRef = useRef(new Set());
+  const [qrOpenId, setQrOpenId] = useState(null);
+  const [qrCodes, setQrCodes] = useState({});
 
   useEffect(() => {
     const loadGlobalClicks = async () => {
@@ -124,6 +169,34 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
     loadLinks();
   }, [isAuthenticated, token]);
 
+  // Reset QR state whenever the link list changes (e.g. new load / delete)
+  useEffect(() => {
+    setQrOpenId(null);
+    setQrCodes({});
+  }, [isAuthenticated, token]);
+
+  const handleToggleQr = async (link) => {
+    if (qrOpenId === link.id) {
+      setQrOpenId(null);
+      return;
+    }
+
+    setQrOpenId(link.id);
+
+    if (qrCodes[link.id]) return;
+
+    try {
+      const dataUrl = await QRCode.toDataURL(link.short, {
+        width: 240,
+        margin: 1,
+        color: { dark: "#000000", light: "#ffffff" },
+      });
+      setQrCodes((prev) => ({ ...prev, [link.id]: dataUrl }));
+    } catch (err) {
+      console.error("QR generation failed:", err);
+    }
+  };
+
   const searchTerm = search.trim().toLowerCase();
   const filtered = links.filter((link) => {
     if (!searchTerm) return true;
@@ -177,6 +250,12 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
       }
 
       setLinks((prev) => prev.filter((l) => l.id !== id));
+      if (qrOpenId === id) setQrOpenId(null);
+      setQrCodes((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
     } catch {
       setError("Unable to connect to server");
     } finally {
@@ -228,7 +307,7 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
       </div>
 
       <div className="mt-4 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-[0_30px_100px_rgba(0,0,0,0.32)] backdrop-blur-xl">
-        <div className="grid gap-4 border-b border-white/10 px-4 py-4 text-[11px] uppercase tracking-[0.22em] text-slate-500 sm:grid-cols-[minmax(0,1.8fr)_140px_110px_72px] sm:px-6">
+        <div className="grid gap-4 border-b border-white/10 px-4 py-4 text-[11px] uppercase tracking-[0.22em] text-slate-500 sm:grid-cols-[minmax(0,1.8fr)_140px_110px_100px] sm:px-6">
           <div>Original URL</div>
           <div>Date</div>
           <div>Clicks</div>
@@ -257,6 +336,9 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
               onCopy={onCopy}
               onDelete={handleDelete}
               deletingIds={deletingIds}
+              onToggleQr={handleToggleQr}
+              isQrOpen={qrOpenId === link.id}
+              qrDataUrl={qrCodes[link.id]}
             />
           ))
         )}
