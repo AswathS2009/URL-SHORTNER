@@ -269,8 +269,8 @@ export default function RecentLinks({ onCopy, isAuthenticated, token, onAuthExpi
     <section className="mx-auto w-full max-w-7xl pb-20">
       <div className="mb-5 flex flex-col gap-4 px-4 sm:flex-row sm:items-end sm:justify-between sm:px-0">
         <div>
-          <p className="mb-2 text-xs uppercase tracking-[0.22em] text-slate-400">
-            Recent Links
+          <p className="mb-2 text-xs uppercase tracking-[0.22em] text-emerald-300">
+            Your workspace
           </p>
           <h2 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
             Recent Links

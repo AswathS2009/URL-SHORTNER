@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ArrowUpRight, Link2, Menu, ShieldCheck } from "lucide-react";
 import UrlShortener from "../components/home/UrlShortener";
 import RecentLinks from "../components/home/RecentLinks";
 import ThreeBackdrop from "../components/home/ThreeBackdrop";
@@ -8,7 +9,6 @@ import SignupModel from "../components/auth/SignupModel";
 export default function HomePage({
   activeModal,
   isAuthenticated,
-  authUser,
   authToken,
   onLoginClick,
   onSignupClick,
@@ -53,10 +53,10 @@ export default function HomePage({
   };
 
   return (
-    <main className="min-h-screen relative overflow-x-hidden bg-[#06070a] text-slate-100">
+    <main className="relative min-h-screen overflow-x-hidden bg-[#08110f] text-slate-100">
       <ThreeBackdrop />
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.06),transparent_34%),radial-gradient(circle_at_20%_20%,rgba(148,163,184,0.08),transparent_18%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.06),transparent_22%)]" />
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,rgba(255,255,255,0.04),transparent_18%,transparent_82%,rgba(0,0,0,0.7))]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(52,211,153,0.12),transparent_30%),radial-gradient(circle_at_85%_14%,rgba(251,191,36,0.08),transparent_23%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(8,17,15,0.97),rgba(8,17,15,0.76)_42%,rgba(8,17,15,0.94))]" />
 
       <Toast show={showToast} onClose={() => setShowToast(false)} />
 
@@ -74,29 +74,49 @@ export default function HomePage({
         onSuccess={onAuthSuccess}
       />
 
-      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 pt-5 sm:px-6">
+      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-4 py-5 sm:px-6 lg:py-7">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)] backdrop-blur">
-            <span className="h-2 w-2 rounded-full bg-white/80" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-300 text-emerald-950 shadow-[0_10px_30px_rgba(52,211,153,0.18)]">
+            <Link2 size={19} strokeWidth={2.5} />
           </div>
-          <span className="text-lg font-semibold tracking-tight text-white">Linkr</span>
+          <div>
+            <span className="block text-lg font-black tracking-tight text-white">Linkr</span>
+            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-200/60 sm:block">Make every click count</span>
+          </div>
         </div>
-        {!isAuthenticated ? (
-          <div className="flex items-center gap-2 sm:gap-3">
+        <nav className="hidden items-center gap-7 text-sm text-slate-300 lg:flex" aria-label="Primary navigation">
+          <a href="#features" className="transition-colors hover:text-emerald-200">Features</a>
+          <a href="#workflow" className="transition-colors hover:text-emerald-200">How it works</a>
+          <a href="#security" className="transition-colors hover:text-emerald-200">Security</a>
+        </nav>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button className="hidden p-2 text-slate-300 lg:hidden" aria-label="Open navigation">
+            <Menu size={19} />
+          </button>
+          {!isAuthenticated ? (
+            <>
             <button
-              className="rounded-md border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm font-medium text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
+              className="rounded-lg px-3.5 py-2 text-sm font-semibold text-slate-300 transition-colors hover:text-white"
               onClick={onLoginClick}
             >
               Log in
             </button>
             <button
-              className="rounded-md border border-white/10 bg-white px-3.5 py-1.5 text-sm font-semibold text-slate-950 shadow-[0_18px_50px_rgba(255,255,255,0.08)] transition-colors hover:bg-slate-100"
+              className="rounded-lg bg-emerald-300 px-4 py-2 text-sm font-bold text-emerald-950 shadow-[0_12px_28px_rgba(52,211,153,0.18)] transition-colors hover:bg-emerald-200"
               onClick={onSignupClick}
             >
-              Sign up
+              Get started
             </button>
-          </div>
-        ) : null}
+            </>
+          ) : (
+            <button
+              className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
+              onClick={onLogout}
+            >
+              Log out
+            </button>
+          )}
+        </div>
       </header>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
@@ -118,6 +138,61 @@ export default function HomePage({
           onAuthExpired={onAuthExpired}
         />
       </div>
+
+      <section id="workflow" className="relative z-10 mx-auto grid max-w-7xl gap-5 px-4 pb-16 pt-4 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:pt-8">
+        <div className="rounded-3xl border border-white/10 bg-[#10201b]/80 p-6 sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">A better link workflow</p>
+          <h2 className="mt-3 max-w-xl text-3xl font-black tracking-tight text-white sm:text-4xl">From long URL to a link people trust.</h2>
+          <div className="mt-7 grid gap-5 sm:grid-cols-3">
+            {[
+              ["01", "Paste", "Drop in any URL and create a clean shareable link."],
+              ["02", "Customize", "Choose a memorable slug that fits your campaign."],
+              ["03", "Measure", "Keep an eye on clicks from your personal workspace."],
+            ].map(([number, title, copy]) => (
+              <div key={number}>
+                <span className="text-xs font-black text-amber-300">{number}</span>
+                <h3 className="mt-2 text-sm font-bold text-white">{title}</h3>
+                <p className="mt-1.5 text-sm leading-6 text-slate-400">{copy}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div id="security" className="rounded-3xl border border-emerald-200/15 bg-emerald-300 p-6 text-emerald-950 sm:p-8">
+          <ShieldCheck size={23} />
+          <h2 className="mt-8 text-2xl font-black tracking-tight">Simple by default. Thoughtful underneath.</h2>
+          <p className="mt-3 text-sm leading-6 text-emerald-950/75">Your links stay organized in one place, with ownership, custom slugs, QR codes, and click counts built into the workflow.</p>
+          <a href="#features" className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-emerald-950 underline decoration-emerald-950/30 underline-offset-4 hover:decoration-emerald-950">Explore features <ArrowUpRight size={15} /></a>
+        </div>
+      </section>
+
+      <section id="features" className="relative z-10 mx-auto max-w-7xl border-t border-white/10 px-4 py-14 sm:px-6 lg:py-20">
+        <div className="max-w-2xl">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">Everything around the link</p>
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">Built for the moment after “shorten”.</h2>
+        </div>
+        <div className="mt-9 grid gap-px overflow-hidden rounded-3xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["Custom slugs", "Create links that are easy to remember and easy to say out loud."],
+            ["QR codes", "Turn every short link into a scannable offline touchpoint."],
+            ["Click tracking", "See which links are getting attention from your workspace."],
+            ["Link library", "Search, reuse, and clean up your links whenever you need."],
+          ].map(([title, copy]) => (
+            <article key={title} className="bg-[#0d1a17] p-5 sm:p-6">
+              <div className="h-2 w-2 rounded-full bg-amber-300" />
+              <h3 className="mt-7 text-base font-bold text-white">{title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-400">{copy}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <footer className="relative z-10 border-t border-white/10 px-4 py-8 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 font-bold text-slate-200"><Link2 size={16} className="text-emerald-300" /> Linkr</div>
+          <p>Short links for the things worth sharing.</p>
+          <div className="flex gap-5"><a href="#features" className="hover:text-white">Features</a><a href="#security" className="hover:text-white">Security</a><a href="mailto:hello@linkr.example" className="hover:text-white">Contact</a></div>
+        </div>
+      </footer>
     </main>
   );
 }

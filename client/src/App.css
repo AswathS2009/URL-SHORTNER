@@ -5,8 +5,8 @@ html {
 body {
 	min-width: 320px;
 	background:
-		radial-gradient(circle at top, rgba(16, 185, 129, 0.12), transparent 30%),
-		#0d1117;
+		radial-gradient(circle at top, rgba(52, 211, 153, 0.12), transparent 30%),
+		#08110f;
 	color: #e5e7eb;
 }
 

@@ -1,11 +1,41 @@
 const generateCode = require("../utils/generateCode");
 const urlModel = require("../models/urlModel");
 
+const isValidHttpUrl = (value) => {
+  if (!/^https?:\/\//i.test(value.trim())) return false;
+
+  try {
+    const parsed = new URL(value.trim());
+    const hostname = parsed.hostname.toLowerCase();
+    const isIpv4 = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+    const hasPublicDomain =
+      hostname.includes(".") &&
+      !hostname.startsWith(".") &&
+      !hostname.endsWith(".");
+
+    return Boolean(
+      hostname &&
+        (hostname === "localhost" || isIpv4 || hasPublicDomain) &&
+        (parsed.protocol === "http:" || parsed.protocol === "https:"),
+    );
+  } catch {
+    return false;
+  }
+};
+
 const createShortUrl = async (req, res) => {
   try {
     const { original_url, custom_code } = req.body;
-    if (!original_url) {
+    const originalUrl = typeof original_url === "string" ? original_url.trim() : "";
+
+    if (!originalUrl) {
       return res.status(400).json({ message: "URL is required" });
+    }
+
+    if (!isValidHttpUrl(originalUrl)) {
+      return res.status(400).json({
+        message: "Please provide a valid http:// or https:// URL",
+      });
     }
 
     let shortCode = custom_code?.trim() || "";
@@ -37,7 +67,7 @@ const createShortUrl = async (req, res) => {
     }
 
     const userId = req.user?.id || null;
-    await urlModel.createShortUrl(original_url, shortCode, userId);
+    await urlModel.createShortUrl(originalUrl, shortCode, userId);
 
     const forwardedProto = req.headers["x-forwarded-proto"];
     const protocol = forwardedProto || req.protocol;

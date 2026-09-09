@@ -106,8 +106,8 @@ export default function UrlShortener({
       value: totalClicks === null ? "Loading" : totalClicks.toLocaleString(),
       label: "Total Clicks",
     },
-    { value: "99.9%", label: "Uptime SLA" },
-    { value: "< 50ms", label: "Redirect Speed" },
+    { value: "Free", label: "To get started" },
+    { value: "QR", label: "Codes included" },
   ];
 
   const handleAuthFailure = (message) => {
@@ -127,6 +127,40 @@ export default function UrlShortener({
   };
 
   const handleShorten = async () => {
+    const trimmedUrl = url.trim();
+
+    if (!trimmedUrl) {
+      setAuthNotice("Please enter a URL.");
+      return;
+    }
+
+    try {
+      if (!/^https?:\/\//i.test(trimmedUrl)) {
+        setAuthNotice("Please enter a valid URL (e.g. https://example.com).");
+        return;
+      }
+
+      const parsedUrl = new URL(trimmedUrl);
+      const hostname = parsedUrl.hostname.toLowerCase();
+      const isIpv4 = /^(?:\d{1,3}\.){3}\d{1,3}$/.test(hostname);
+      const hasPublicDomain =
+        hostname.includes(".") &&
+        !hostname.startsWith(".") &&
+        !hostname.endsWith(".");
+
+      if (
+        !hostname ||
+        (hostname !== "localhost" && !isIpv4 && !hasPublicDomain) ||
+        (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:")
+      ) {
+        setAuthNotice("Please enter a valid URL (e.g. https://example.com).");
+        return;
+      }
+    } catch {
+      setAuthNotice("Please enter a valid http:// or https:// URL.");
+      return;
+    }
+
     setAuthNotice(
       isAuthenticated
         ? ""
@@ -134,7 +168,7 @@ export default function UrlShortener({
     );
 
     try {
-      const payload = { original_url: url };
+      const payload = { original_url: trimmedUrl };
       if (useCustom && customCode.trim()) {
         payload.custom_code = customCode.trim();
       }
@@ -175,42 +209,42 @@ export default function UrlShortener({
 
   return (
     <section className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 pb-6 pt-6 text-center sm:px-6">
-      <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-medium text-slate-200 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] backdrop-blur sm:text-xs">
-        <span className="h-1.5 w-1.5 rounded-full bg-slate-100 shadow-[0_0_12px_rgba(255,255,255,0.45)]" />
-        Trusted by 50,000+ creators & teams worldwide
+      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/15 bg-emerald-300/10 px-4 py-2 text-[11px] font-bold text-emerald-200 shadow-[0_0_0_1px_rgba(52,211,153,0.03)] backdrop-blur sm:text-xs">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_12px_rgba(52,211,153,0.65)]" />
+        Free to try · No credit card required
       </div>
 
       <div className="mt-10 max-w-3xl">
         <h1 className="text-5xl font-black leading-[0.95] tracking-tight text-white sm:text-6xl lg:text-7xl">
-          Shorten URLs.
+          Make every link
           <br />
-          <span className="text-slate-300">Expand your reach.</span>
+          <span className="text-emerald-300">work harder.</span>
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-slate-400 sm:text-lg">
-          A blazing-fast, secure URL shortener with real-time analytics. Built
-          for teams who care about every click.
+          Create clean short links, memorable custom slugs, and QR codes in
+          seconds. Keep every share organized and see what gets clicked.
         </p>
       </div>
 
       {!isAuthenticated && (
-        <div className="mt-8 w-full max-w-3xl rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] text-slate-300 sm:text-xs backdrop-blur">
+        <div className="mt-8 w-full max-w-3xl rounded-full border border-white/10 bg-[#10201b]/80 px-4 py-2 text-[11px] text-slate-300 sm:text-xs backdrop-blur">
           <div className="flex items-center justify-center gap-2">
             <Lock size={13} />
             <span>
-              Login required if you want your short links to be saved in Recent
-              Links
+              Shorten a link now. Create an account when you want to save and manage it.
             </span>
           </div>
         </div>
       )}
 
       <div className="mt-4 w-full max-w-3xl space-y-3">
-        <div className="flex flex-col gap-3 rounded-[28px] border border-white/10 bg-white/[0.04] px-4 py-4 shadow-[0_30px_80px_rgba(0,0,0,0.4)] backdrop-blur-xl sm:flex-row sm:items-center sm:px-5">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/20 text-slate-200/80">
+        <div className="flex flex-col gap-3 rounded-[24px] border border-emerald-200/20 bg-[#f5f5e9] px-3 py-3 shadow-[0_30px_90px_rgba(0,0,0,0.34)] sm:flex-row sm:items-center sm:px-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-900">
             <Link2 size={18} />
           </div>
           <input
             type="text"
+            inputMode="url"
             value={url}
             onChange={(e) => {
               setUrl(e.target.value);
@@ -218,11 +252,11 @@ export default function UrlShortener({
             }}
             onKeyDown={(e) => e.key === "Enter" && handleShorten()}
             placeholder="Paste your long URL here..."
-            className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500 sm:text-base"
+            className="min-w-0 flex-1 bg-transparent px-1 text-sm text-slate-900 outline-none placeholder:text-slate-500 sm:text-base"
           />
           <button
             onClick={handleShorten}
-            className="inline-flex min-w-[148px] items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white px-5 py-3 text-sm font-extrabold text-slate-950 shadow-[0_12px_32px_rgba(255,255,255,0.08)] transition-colors hover:bg-slate-100"
+            className="inline-flex min-w-[148px] items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-extrabold text-white shadow-[0_10px_24px_rgba(4,120,87,0.24)] transition-colors hover:bg-emerald-800"
           >
             Shorten URL <ArrowRight size={14} />
           </button>
@@ -328,7 +362,7 @@ export default function UrlShortener({
         {heroStats.map((stat) => (
           <div
             key={stat.label}
-            className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-5 text-center backdrop-blur-xl"
+            className="rounded-2xl border border-white/10 bg-[#10201b]/80 px-4 py-5 text-center backdrop-blur-xl"
           >
             <div className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
               {stat.value}
@@ -341,26 +375,26 @@ export default function UrlShortener({
       </div>
 
       <div className="mt-8 grid w-full gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-left text-sm text-slate-300 backdrop-blur-xl">
+        <div className="rounded-2xl border border-white/10 bg-[#10201b]/80 px-4 py-4 text-left text-sm text-slate-300 backdrop-blur-xl">
           <div className="mb-2 flex items-center gap-2 text-slate-100">
             <ShieldCheck size={15} />
             Secure by design
           </div>
-          JWT auth, custom slugs, and link ownership keep your workspace clean.
+          Sign in to keep ownership of your links and your workspace tidy.
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-left text-sm text-slate-300 backdrop-blur-xl">
+        <div className="rounded-2xl border border-white/10 bg-[#10201b]/80 px-4 py-4 text-left text-sm text-slate-300 backdrop-blur-xl">
           <div className="mb-2 flex items-center gap-2 text-slate-100">
             <BarChart3 size={15} />
             Real-time tracking
           </div>
-          See what gets clicked and iterate on campaigns faster.
+          See which links get attention and make better sharing decisions.
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4 text-left text-sm text-slate-300 backdrop-blur-xl">
+        <div className="rounded-2xl border border-white/10 bg-[#10201b]/80 px-4 py-4 text-left text-sm text-slate-300 backdrop-blur-xl">
           <div className="mb-2 flex items-center gap-2 text-slate-100">
             <Globe2 size={15} />
             Built for sharing
           </div>
-          Clean short links that look good everywhere you post them.
+          Add QR codes when your audience is moving between screens.
         </div>
       </div>
     </section>

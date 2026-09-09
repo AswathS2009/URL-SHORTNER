@@ -6,7 +6,7 @@ const app = express();
 
 // CORS middleware - must come before routes
 const corsOptions = {
-  origin: "https://url.mithulvarshansk.site",
+  origin: "*",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
